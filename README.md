@@ -2,8 +2,6 @@
 
 This requires the [Go] toolchain to run.
 
-[Go]: https://go.dev/doc/install
-
 For remote appointments use a command like this:
 
 ```shell
@@ -11,6 +9,7 @@ go run github.com/kylelemons/globalentry/cmd/schedulewatcher@latest --remote
 ```
 
 If you have a location code (either from Chrome Developer Tools or the [code list]):
+
 
 ```shell
 go run github.com/kylelemons/globalentry/cmd/schedulewatcher@latest --location=5446 # for San Francisco
@@ -37,3 +36,6 @@ The following are currently supported: (PRs welcome)
 - [X] Windows desktop notifications
 - [ ] Mac OS notifications
 - [ ] Linux desktop notifications
+
+[Go]: https://go.dev/doc/install
+[code list]: https://github.com/Drewster727/goes-notify#goes-center-codes
