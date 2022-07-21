@@ -1,4 +1,8 @@
-# Usage
+# Simple Usage
+
+This requires the [Go] toolchain to run.
+
+[Go]: https://go.dev/doc/install
 
 For remote appointments use a command like this:
 
@@ -18,9 +22,18 @@ You can also watch for both at the same time:
 go run github.com/kylelemons/globalentry/cmd/schedulewatcher@latest --remote --location=5446
 ```
 
+## Installation
+
 You can also install the tool and run it locally
 
 ```shell
 go install github.com/kylelemons/globalentry/cmd/schedulewatcher@latest
 schedulewatcher --remote --location=5446 --every=1h
 ```
+
+# Support
+
+The following are currently supported: (PRs welcome)
+- [X] Windows desktop notifications
+- [ ] Mac OS notifications
+- [ ] Linux desktop notifications
