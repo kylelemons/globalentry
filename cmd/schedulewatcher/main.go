@@ -7,10 +7,13 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
 var (
@@ -18,6 +21,18 @@ var (
 	remote   = flag.Bool("remote", false, "If true, also watch for remote openings.")
 	people   = flag.Int("people", 1, "Number of people to schedule for")
 	every    = flag.Duration("every", 5*time.Minute, "Frequency to poll the API")
+
+	level = zap.LevelFlag("log-level", zap.InfoLevel, "Log level")
+)
+
+var (
+	log = zap.New(
+		zapcore.NewCore(
+			zapcore.NewConsoleEncoder(zap.NewDevelopmentEncoderConfig()),
+			os.Stdout,
+			level,
+		),
+	).Sugar()
 )
 
 func main() {
@@ -80,6 +95,8 @@ func remoteURL(people int) *url.URL {
 }
 
 func watchLocation(ctx context.Context, every time.Duration, slotsURL *url.URL) {
+	log.Infof("Monitoring %s every %s for new appointments...", slotsURL, every)
+
 	tick := time.NewTicker(every)
 	defer tick.Stop()
 
@@ -96,14 +113,14 @@ func scrape(ctx context.Context, slotsURL *url.URL) {
 	}
 	resp, err := http.DefaultClient.Do(req.WithContext(ctx))
 	if err != nil {
-		log.Printf("Failed to scrape: %s", err)
+		log.Warnf("Failed to scrape: %s", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	content, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("Raading body from %q: %s", slotsURL, err)
+		log.Warnf("Raading body from %q: %s", slotsURL, err)
 		return
 	}
 
@@ -116,23 +133,23 @@ func scrape(ctx context.Context, slotsURL *url.URL) {
 		Remote         bool   `json:"remoteInd"`
 	}
 	if err := json.Unmarshal(content, &appointments); err != nil {
-		log.Printf("Decoding response body (%q): %s", content, err)
+		log.Infof("Decoding response body (%q): %s", content, err)
 		return
 	}
 
 	if len(appointments) == 0 {
-		log.Printf("No appointment at %s", slotsURL)
+		log.Debugf("No appointment at %s", slotsURL)
 		return
 	}
 
-	log.Printf("Appointment found!")
-	log.Printf("  %s", slotsURL)
+	log.Infof("Appointment found!")
+	log.Infof("  %s", slotsURL)
 	for _, appt := range appointments {
 		if appt.Remote {
-			log.Printf("  - Remote appointment at %s)!", appt.StartTimestamp)
+			log.Infof("  - Remote appointment at %s)!", appt.StartTimestamp)
 			sendNotification(slotsURL, "Remote appointment found!")
 		} else {
-			log.Printf("  - Appointment found at %v at %s!", appt.LocationID, appt.StartTimestamp)
+			log.Infof("  - Appointment found at %v at %s!", appt.LocationID, appt.StartTimestamp)
 			sendNotification(slotsURL, "Onsite appointment (%v) found!", appt.LocationID)
 		}
 	}

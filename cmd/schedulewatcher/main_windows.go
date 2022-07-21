@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 
 	"github.com/go-toast/toast"
@@ -19,6 +18,6 @@ func sendNotification(buttonURL *url.URL, messageFormat string, messageArgs ...i
 		// it makes the notification not appear at all.  Oh well.
 	}
 	if err := notification.Push(); err != nil {
-		log.Printf("Failed to push notification: %s", err)
+		log.Warnf("Failed to push notification: %s", err)
 	}
 }
