@@ -1,4 +1,4 @@
-module globalentry
+module github.com/kylelemons/globalentry
 
 go 1.18
 
