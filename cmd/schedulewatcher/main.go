@@ -23,6 +23,8 @@ var (
 	every    = flag.Duration("every", 5*time.Minute, "Frequency to poll the API")
 
 	level = zap.LevelFlag("log-level", zap.InfoLevel, "Log level")
+
+	test = flag.Bool("test", false, "If true, sends a test notification at startup to verify they are working")
 )
 
 var (
@@ -48,6 +50,9 @@ func main() {
 	}
 	if *remote {
 		go watchLocation(ctx, *every, remoteURL(*people))
+	}
+	if *test {
+		sendNotification(&url.URL{Scheme: "https", Host: "google.com"}, "Schedule watcher started!")
 	}
 
 	select {}
